@@ -2,6 +2,7 @@ package com.bridgelabz.Bank_Application.service;
 
 import com.bridgelabz.Bank_Application.dto.BankCustomerDto;
 import com.bridgelabz.Bank_Application.dto.CustomerBalance;
+import com.bridgelabz.Bank_Application.dto.EstatementLists;
 import com.bridgelabz.Bank_Application.dto.ResponseDTO;
 import com.bridgelabz.Bank_Application.exception.ATMException;
 import com.bridgelabz.Bank_Application.model.BankCustomer;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -156,33 +158,103 @@ public class BankService implements IBankService {
     }
 
     @Override
+    public List<Estatements> getEstatementOftheAccountOnThatParticularDate(Long accountNumber, String dateOfEstatement) {
+        Optional<BankCustomer> customer = bankRepository.findById(accountNumber);
+        if (customer.isPresent()) {
+            List<Estatements> estatements = estatementRepository.findByBankCustomerDetailsWithDate(accountNumber, dateOfEstatement);
+            return estatements;
+        } else throw new ATMException(HttpStatus.FOUND, "Account not found");
+    }
+
+    @Override
+    public List<Estatements> getDepositedEstatementBetweenDates(Long accountNumber, String fromDate, String toDate) {
+        Optional<BankCustomer> customer = bankRepository.findById(accountNumber);
+        if (customer.isPresent()) {
+            List<Estatements> estatements = estatementRepository.findByCustomerDepositedEstatementWithFromDateAndToDate(accountNumber, fromDate, toDate);
+            return estatements;
+        } else throw new ATMException(HttpStatus.FOUND, "Account not found");
+    }
+
+    @Override
+    public List<Estatements> getWithDrawnEstatementBetweenDates(Long accountNumber, String fromDate, String toDate) {
+        Optional<BankCustomer> customer = bankRepository.findById(accountNumber);
+        if (customer.isPresent()) {
+            List<Estatements> estatements = estatementRepository.findByCustomerWithDrawnEstatementWithFromDateAndToDate(accountNumber, fromDate, toDate);
+            return estatements;
+        } else throw new ATMException(HttpStatus.FOUND, "Account not found");
+    }
+
+    @Override
+    public List<EstatementLists> getEstatementOfThatDatePeriod(Long accountNumber, String fromDate, String toDate) {
+        Optional<BankCustomer> customer = bankRepository.findById(accountNumber);
+        if (customer.isPresent()) {
+            List<EstatementLists> estatements = new ArrayList<>();
+            EstatementLists estate = new EstatementLists();
+            estate.setDepositedEstatement(getDepositedEstatementBetweenDates(accountNumber, fromDate, toDate));
+            estate.setWithDrawnListEstatement(getWithDrawnEstatementBetweenDates(accountNumber, fromDate, toDate));
+            estatements.add(estate);
+            return estatements;
+        } else throw new ATMException(HttpStatus.FOUND, "Account not found");
+    }
+
+
+    @Override
     public ResponseDTO deleteCustomerAccount(Long accountNumber) {
-        return null;
+        Optional<BankCustomer> customer = bankRepository.findById(accountNumber);
+        if (customer.isPresent()) {
+            bankRepository.deleteById(accountNumber);
+            return new ResponseDTO("Account delected successfully",customer);
+        } else throw new ATMException(HttpStatus.FOUND, "Account not found");
     }
 
     @Override
     public List<BankCustomer> getCustomerAccountDetailsByAadharNumber(String aadharNumber) {
-        return null;
+        List<BankCustomer>customer=bankRepository.findByAadharNumber(aadharNumber);
+        if (customer.equals(null)) {
+            throw new ATMException(HttpStatus.FOUND,"With aadharNumber, customer not found");
+        }else{
+           return customer;
+        }
     }
 
     @Override
     public List<BankCustomer> getCustomerAccountDetailsByName(String name) {
-        return null;
+        List<BankCustomer>customer=bankRepository.findByName(name);
+        if (customer.equals(null)) {
+            throw new ATMException(HttpStatus.FOUND,"With customer name no details found");
+        }else{
+            return customer;
+        }
     }
 
     @Override
     public List<BankCustomer> getCustomerAccountDetailsByEmail(String email) {
-        return null;
+        List<BankCustomer>customer=bankRepository.findByEmail(email);
+        if (customer.equals(null)) {
+            throw new ATMException(HttpStatus.FOUND,"With customer name no details found");
+        }else{
+            return customer;
+        }
     }
 
     @Override
     public List<BankCustomer> getCustomerAccountDetailsByPhoneNumber(String phoneNumber) {
-        return null;
+        List<BankCustomer>customer=bankRepository.findByPhoneNumber(phoneNumber);
+        if (customer.equals(null)) {
+            throw new ATMException(HttpStatus.FOUND,"With customer phone number no details found");
+        }else{
+            return customer;
+        }
     }
 
     @Override
     public List<BankCustomer> getCustomerAccountDetailsByNameAndPhonenNumber(String name, String phoneNumber) {
-        return null;
+        List<BankCustomer>customer=bankRepository.findByNameAndPhoneNumber(name,phoneNumber);
+        if (customer.equals(null)) {
+            throw new ATMException(HttpStatus.FOUND,"With customer name and phone number, no details found");
+        }else{
+            return customer;
+        }
     }
 
     public Long generateATMPin() {
