@@ -14,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +34,8 @@ public class BankService implements IBankService {
         BankCustomer newCustomer = new BankCustomer(bankCustomerDto);
         BankService pin = new BankService();
         newCustomer.setAtmPin(pin.generateATMPin());
+        newCustomer.setAtmCardNumber(pin.generateATMCardNumber());
+        newCustomer.setIsAtmCardActive(true);
         newCustomer.setAccountIsActive(true);
         bankRepository.save(newCustomer);
         emailSender.send(newCustomer.getEmail(), "Account Created successfully",
@@ -152,7 +153,7 @@ public class BankService implements IBankService {
     public List<Estatements> getEstatementOftheAccount(Long accountNumber) {
         Optional<BankCustomer> customer = bankRepository.findById(accountNumber);
         if (customer.isPresent()) {
-            List<Estatements> estatements = estatementRepository.findByBankCustomerDetails(accountNumber);
+            List<Estatements> estatements = estatementRepository.findcustomerAllTransactions(accountNumber);
             return estatements;
         } else throw new ATMException(HttpStatus.FOUND, "Account not found");
     }
@@ -261,6 +262,12 @@ public class BankService implements IBankService {
         int min = 1000;
         int max = 8888;
         Long b = Long.valueOf((int) (Math.random() * (max - min + 1) + min));
+        return b;
+    }
+    public Long generateATMCardNumber() {
+        Long min = 100000000000l;
+        Long max = 888888888888l;
+        Long b = (long)(Math.random() * (max - min + 1) + min);
         return b;
     }
 }

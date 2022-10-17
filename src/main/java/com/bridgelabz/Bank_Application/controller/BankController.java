@@ -20,6 +20,10 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/bank")
 public class BankController {
+
+    /**
+     * This controller is for bank purpose
+     */
     @Autowired
     IBankService bankService;
     @PostMapping("/addnewcustomeraccount")

@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface BankRepository extends JpaRepository<BankCustomer, Long> {
@@ -19,4 +20,10 @@ public interface BankRepository extends JpaRepository<BankCustomer, Long> {
     List<BankCustomer> findByPhoneNumber(String phoneNumber);
     @Query(value = "select * from bankuser.customeraccounttable where  account_holder_name like :name% and phone_no = :phoneNumber", nativeQuery = true)
     List<BankCustomer> findByNameAndPhoneNumber(String name, String phoneNumber);
+
+    Optional<BankCustomer> findByAtmCardNumberAndAtmPin(Long atmCardNumber, Long atmPin);
+
+    Optional<BankCustomer> findByAtmCardNumber(Long atmCardNumber);
+
+    Optional<BankCustomer> findByAtmPin(Long atmPin);
 }

@@ -19,7 +19,9 @@ public class BankCustomer {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long accountNo;
     private String accountHolderName;
+    private Long atmCardNumber;
     private Long atmPin;
+    private Boolean isAtmCardActive;
     private String address;
     private String phoneNo;
     private String email;
